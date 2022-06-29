@@ -21,6 +21,7 @@ func setupRouter() *gin.Engine {
 		client.POST("/ipay/check-transaction", handlers.CheckTransaction)
 		client.POST("/ipay/retrieve-card-info", handlers.RetrieveCardInfo)
 		client.POST("/ipay/check-product-info", handlers.CheckProductInfo)
+		client.POST("/imedia/login", handlers.Login)
 	}
 
 	return r

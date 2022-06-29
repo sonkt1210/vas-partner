@@ -4,18 +4,18 @@ import (
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
-	"crypto/sha1"
+	"crypto/sha256"
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
 	"os"
 )
 
-func RSAEncrypt(plainText []byte) ([]byte, error) {
+func IMediaRSAEncrypt(plainText []byte) ([]byte, error) {
 	//Open file
 	mydir, _ := os.Getwd()
 	// key, err := ioutil.ReadFile(mydir + "/res/private.pem")
-	file, err := os.Open(mydir + "/res/tiki_private_key.pem")
+	file, err := os.Open(mydir + "/res/imedia_tiki_private.pem")
 	if err != nil {
 		return nil, err
 		// panic(err)
@@ -43,8 +43,8 @@ func RSAEncrypt(plainText []byte) ([]byte, error) {
 	}
 	//Encrypt plaintext
 	// md5Str := md5.New()
-	hashed := sha1.Sum(plainText)
-	cipherText, err := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA1, hashed[:])
+	hashed := sha256.Sum256(plainText)
+	cipherText, err := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, hashed[:])
 	if err != nil {
 		return nil, err
 	}

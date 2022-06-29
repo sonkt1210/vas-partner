@@ -3,18 +3,18 @@ package helpers
 import (
 	"crypto"
 	"crypto/rsa"
-	"crypto/sha1"
+	"crypto/sha256"
 	"crypto/x509"
-	"encoding/base64"
+	"encoding/hex"
 	"encoding/pem"
 	"os"
 )
 
-func RSAVerify(msg string, sig string) error {
+func IMediaRSAVerify(msg string, sig string) error {
 	//Open file
 	mydir, _ := os.Getwd()
 	// key, err := ioutil.ReadFile(mydir + "/res/private.pem")
-	file, err := os.Open(mydir + "/res/ipay_pub.pem")
+	file, err := os.Open(mydir + "/res/imedia_pub.pem")
 	if err != nil {
 		return err
 		// panic(err)
@@ -35,12 +35,11 @@ func RSAVerify(msg string, sig string) error {
 	}
 	publicKey = publicPkixKey.(*rsa.PublicKey)
 	message := []byte(msg)
-	h := sha1.New()
+	h := sha256.New()
 	h.Write(message)
 	digest := h.Sum(nil)
-	ds, _ := base64.StdEncoding.DecodeString(sig)
-
-	err = rsa.VerifyPKCS1v15(publicKey, crypto.SHA1, digest, ds)
+	ds, _ := hex.DecodeString(sig)
+	err = rsa.VerifyPKCS1v15(publicKey, crypto.SHA256, digest, ds)
 	if err != nil {
 		return err
 	}

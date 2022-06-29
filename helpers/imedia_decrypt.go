@@ -1,26 +1,24 @@
 package helpers
 
 import (
-	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
-	"crypto/sha1"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/pem"
-	"fmt"
 	"os"
 )
 
-func RSAEncrypt(plainText []byte) ([]byte, error) {
+func IMediaRSADecrypt(ciphertext string) (string, error) {
 	//Open file
 	mydir, _ := os.Getwd()
-	// key, err := ioutil.ReadFile(mydir + "/res/private.pem")
-	file, err := os.Open(mydir + "/res/tiki_private_key.pem")
+	file, err := os.Open(mydir + "/res/imedia_tiki_private.pem")
 	if err != nil {
-		return nil, err
+		return "", err
 		// panic(err)
 	}
 	defer file.Close()
+
 	//Read the contents of the file
 	info, _ := file.Stat()
 	buf := make([]byte, info.Size())
@@ -32,10 +30,9 @@ func RSAEncrypt(plainText []byte) ([]byte, error) {
 	var privateKey *rsa.PrivateKey
 	key, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
-		fmt.Println("TEST")
 		privatePkcs8Key, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 		privateKey = privatePkcs8Key.(*rsa.PrivateKey)
 	} else {
@@ -43,11 +40,14 @@ func RSAEncrypt(plainText []byte) ([]byte, error) {
 	}
 	//Encrypt plaintext
 	// md5Str := md5.New()
-	hashed := sha1.Sum(plainText)
-	cipherText, err := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA1, hashed[:])
+	//hashed := sha1.Sum(ciphertext)
+	msg, err := base64.StdEncoding.DecodeString(ciphertext)
+	data, err := rsa.DecryptPKCS1v15(rand.Reader, privateKey, msg)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
+
 	//Return ciphertext
-	return cipherText, nil
+	plainText := string(data)
+	return plainText, nil
 }
